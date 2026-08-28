@@ -18,6 +18,9 @@ export function ChatWindow({ onTasksChanged }: Props) {
     try {
       const reply = await sendMessage(text, messages);
       setMessages([...nextHistory, { role: 'assistant', content: reply }]);
+      // No sabemos si este mensaje cambio tareas o no (crear, completar, PRs...),
+      // asi que simplemente refrescamos el panel siempre. Para un proyecto de este
+      // tamaño es mas simple que intentar detectarlo desde la respuesta del agente.
       onTasksChanged?.();
     } catch {
       setMessages([...nextHistory, { role: 'assistant', content: 'Error al contactar con el agente.' }]);
