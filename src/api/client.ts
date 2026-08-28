@@ -37,3 +37,18 @@ export async function getTasks(): Promise<Task[]> {
   const data = await res.json();
   return data.tasks as Task[];
 }
+
+export interface ReminderCheck {
+  checked_at: string;
+  urgent_count: number;
+  email_sent: boolean;
+}
+
+export async function getLastReminderCheck(): Promise<ReminderCheck | null> {
+  const res = await fetch(`${API_URL}/reminders/last`);
+  if (!res.ok) {
+    throw new Error('Error al obtener el estado de recordatorios');
+  }
+  const data = await res.json();
+  return data.lastCheck as ReminderCheck | null;
+}
