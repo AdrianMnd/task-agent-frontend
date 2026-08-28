@@ -59,14 +59,20 @@ export async function login(email: string, password: string): Promise<{ token: s
   return handleResponse(res);
 }
 
-export async function sendMessage(message: string, history: ChatMessage[]): Promise<string> {
+export async function sendMessage(message: string): Promise<string> {
   const res = await fetch(`${API_URL}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ message, history })
+    body: JSON.stringify({ message })
   });
   const data = await handleResponse<{ reply: string }>(res);
   return data.reply;
+}
+
+export async function getMessages(): Promise<ChatMessage[]> {
+  const res = await fetch(`${API_URL}/messages`, { headers: authHeaders() });
+  const data = await handleResponse<{ messages: ChatMessage[] }>(res);
+  return data.messages;
 }
 
 export async function getTasks(): Promise<Task[]> {
