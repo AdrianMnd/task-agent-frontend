@@ -1,11 +1,18 @@
+import { useState } from 'react';
 import { ChatWindow } from './components/ChatWindow';
+import { TaskPanel } from './components/TaskPanel';
 import './styles.css';
 
 function App() {
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   return (
     <div className="app">
       <h1>Agente de Tareas</h1>
-      <ChatWindow />
+      <div className="layout">
+        <ChatWindow onTasksChanged={() => setRefreshTrigger((n) => n + 1)} />
+        <TaskPanel refreshTrigger={refreshTrigger} />
+      </div>
     </div>
   );
 }

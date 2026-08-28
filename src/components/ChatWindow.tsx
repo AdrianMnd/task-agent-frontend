@@ -3,7 +3,11 @@ import { sendMessage, type ChatMessage } from '../api/client';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
 
-export function ChatWindow() {
+interface Props {
+  onTasksChanged?: () => void;
+}
+
+export function ChatWindow({ onTasksChanged }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -14,6 +18,7 @@ export function ChatWindow() {
     try {
       const reply = await sendMessage(text, messages);
       setMessages([...nextHistory, { role: 'assistant', content: reply }]);
+      onTasksChanged?.();
     } catch {
       setMessages([...nextHistory, { role: 'assistant', content: 'Error al contactar con el agente.' }]);
     } finally {
