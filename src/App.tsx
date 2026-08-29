@@ -33,7 +33,10 @@ function App() {
   return (
     <div className="app">
       <div className="app-header">
-        <p className="app-title">Task Agent</p>
+        <div className="app-title-group">
+          <img src="/logo.svg" alt="" className="app-logo" />
+          <p className="app-title">Task Agent</p>
+        </div>
         <div className="header-right">
           <span className="app-session">{user?.email ?? 'sesión activa'}</span>
           <button className="logout-button" onClick={handleLogout}>
