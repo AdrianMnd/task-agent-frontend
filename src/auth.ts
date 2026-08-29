@@ -1,7 +1,10 @@
-// Almacenamiento del token de sesion. localStorage es apropiado aqui porque esta
-// es una app real desplegada (no un artifact de Claude), donde localStorage
-// funciona con normalidad.
 const TOKEN_KEY = 'task_agent_token';
+const USER_KEY = 'task_agent_user';
+
+export interface StoredUser {
+  id: number;
+  email: string;
+}
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -13,4 +16,22 @@ export function setToken(token: string): void {
 
 export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
+}
+
+export function getUser(): StoredUser | null {
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as StoredUser;
+  } catch {
+    return null;
+  }
+}
+
+export function setUser(user: StoredUser): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function clearUser(): void {
+  localStorage.removeItem(USER_KEY);
 }

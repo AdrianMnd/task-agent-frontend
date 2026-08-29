@@ -5,6 +5,11 @@ interface Props {
   refreshTrigger: number;
 }
 
+function isOverdue(task: Task): boolean {
+  if (task.completed || !task.due_date) return false;
+  return new Date(task.due_date) < new Date(new Date().toDateString());
+}
+
 export function TaskPanel({ refreshTrigger }: Props) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +41,7 @@ export function TaskPanel({ refreshTrigger }: Props) {
 
   return (
     <aside className="task-panel">
-      <h2>Tareas</h2>
+      <p className="task-panel-header">Tareas</p>
 
       {loading && tasks.length === 0 && <p className="task-panel-hint">Cargando...</p>}
       {error && <p className="task-panel-hint">No se pudieron cargar las tareas.</p>}
@@ -46,13 +51,17 @@ export function TaskPanel({ refreshTrigger }: Props) {
 
       {pending.length > 0 && (
         <ul className="task-list">
-          {pending.map((t) => (
-            <li key={t.id} className="task-item">
-              <span className="task-title">{t.title}</span>
-              {t.due_date && <span className="task-due">{t.due_date}</span>}
-              {t.source === 'github' && <span className="task-badge">GitHub</span>}
-            </li>
-          ))}
+          {pending.map((t) => {
+            const overdue = isOverdue(t);
+            return (
+              <li key={t.id} className="task-item">
+                <span className={`task-dot ${overdue ? 'overdue' : 'pending'}`} />
+                <span className="task-title">{t.title}</span>
+                {t.due_date && <span className={`task-due ${overdue ? 'overdue' : ''}`}>{t.due_date}</span>}
+                {t.source === 'github' && <span className="task-badge">GitHub</span>}
+              </li>
+            );
+          })}
         </ul>
       )}
 
@@ -62,6 +71,7 @@ export function TaskPanel({ refreshTrigger }: Props) {
           <ul className="task-list">
             {completed.map((t) => (
               <li key={t.id} className="task-item task-item-done">
+                <span className="task-dot done" />
                 <span className="task-title">{t.title}</span>
               </li>
             ))}

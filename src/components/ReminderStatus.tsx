@@ -27,7 +27,8 @@ export function ReminderStatus() {
 
   return (
     <p className="reminder-status">
-      Última comprobación automática: {date} — {message}
+      <span className={`reminder-dot ${check.email_sent ? 'sent' : 'idle'}`} />
+      Última comprobación {date} — {message}
     </p>
   );
 }

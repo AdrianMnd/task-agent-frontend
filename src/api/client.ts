@@ -2,6 +2,11 @@ import { getToken, clearToken } from '../auth';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
+export interface AuthUser {
+  id: number;
+  email: string;
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -41,38 +46,80 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json();
 }
 
-export async function register(email: string, password: string): Promise<{ token: string }> {
+async function parseAuthResponse<T>(res: Response): Promise<T> {
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.error || 'Error de red');
+  }
+  return body as T;
+}
+
+export async function register(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return handleResponse(res);
+  return parseAuthResponse(res);
 }
 
-export async function login(email: string, password: string): Promise<{ token: string }> {
+export async function login(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return handleResponse(res);
+  return parseAuthResponse(res);
 }
 
-export async function sendMessage(message: string): Promise<string> {
+export async function requestPasswordReset(email: string): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/request-reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  await parseAuthResponse(res);
+}
+
+export async function sendMessage(message: string, onChunk: (chunk: string) => void): Promise<void> {
   const res = await fetch(`${API_URL}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ message })
   });
-  const data = await handleResponse<{ reply: string }>(res);
-  return data.reply;
+
+  if (res.status === 401) {
+    clearToken();
+    window.location.reload();
+    throw new Error('Sesion caducada');
+  }
+  if (!res.ok || !res.body) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || 'Error de red');
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    onChunk(decoder.decode(value, { stream: true }));
+  }
 }
 
 export async function getMessages(): Promise<ChatMessage[]> {
   const res = await fetch(`${API_URL}/messages`, { headers: authHeaders() });
   const data = await handleResponse<{ messages: ChatMessage[] }>(res);
   return data.messages;
+}
+
+export async function clearMessages(): Promise<void> {
+  const res = await fetch(`${API_URL}/messages`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+  await handleResponse<{ cleared: boolean }>(res);
 }
 
 export async function getTasks(): Promise<Task[]> {
@@ -85,4 +132,29 @@ export async function getLastReminderCheck(): Promise<ReminderCheck | null> {
   const res = await fetch(`${API_URL}/reminders/last`, { headers: authHeaders() });
   const data = await handleResponse<{ lastCheck: ReminderCheck | null }>(res);
   return data.lastCheck;
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // reader.result es un data URL "data:<mime>;base64,<contenido>"; solo
+      // queremos la parte de despues de la coma.
+      const result = reader.result as string;
+      resolve(result.split(',')[1] ?? '');
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+export async function transcribeAudio(blob: Blob): Promise<string> {
+  const base64 = await blobToBase64(blob);
+  const res = await fetch(`${API_URL}/transcribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ audio: base64, mimeType: blob.type })
+  });
+  const data = await handleResponse<{ text: string }>(res);
+  return data.text;
 }
