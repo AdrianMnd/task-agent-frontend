@@ -86,3 +86,26 @@ export async function getLastReminderCheck(): Promise<ReminderCheck | null> {
   const data = await handleResponse<{ lastCheck: ReminderCheck | null }>(res);
   return data.lastCheck;
 }
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      resolve(result.split(',')[1] ?? '');
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+export async function transcribeAudio(blob: Blob): Promise<string> {
+  const base64 = await blobToBase64(blob);
+  const res = await fetch(`${API_URL}/transcribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ audio: base64, mimeType: blob.type })
+  });
+  const data = await handleResponse<{ text: string }>(res);
+  return data.text;
+}

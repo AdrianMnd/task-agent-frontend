@@ -280,3 +280,9 @@ h1 {
   border-color: #dc2626;
   color: white;
 }
+
+.voice-error {
+  color: #f87171;
+  font-size: 0.75rem;
+  margin: 4px 0 0;
+}
