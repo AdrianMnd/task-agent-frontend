@@ -72,6 +72,15 @@ export async function login(email: string, password: string): Promise<{ token: s
   return parseAuthResponse(res);
 }
 
+export async function requestPasswordReset(email: string): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/request-reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  await parseAuthResponse(res);
+}
+
 export async function sendMessage(message: string, onChunk: (chunk: string) => void): Promise<void> {
   const res = await fetch(`${API_URL}/chat`, {
     method: 'POST',

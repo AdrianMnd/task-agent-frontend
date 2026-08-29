@@ -516,6 +516,12 @@ button {
   margin: 0;
 }
 
+.auth-info {
+  color: var(--green);
+  font-size: 12px;
+  margin: 0;
+}
+
 /* Responsive: por debajo de 720px, el chat y las tareas pasan a pestañas */
 @media (max-width: 720px) {
   .layout {
