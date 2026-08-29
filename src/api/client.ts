@@ -46,13 +46,21 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json();
 }
 
+async function parseAuthResponse<T>(res: Response): Promise<T> {
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.error || 'Error de red');
+  }
+  return body as T;
+}
+
 export async function register(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return handleResponse(res);
+  return parseAuthResponse(res);
 }
 
 export async function login(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
@@ -61,7 +69,7 @@ export async function login(email: string, password: string): Promise<{ token: s
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
-  return handleResponse(res);
+  return parseAuthResponse(res);
 }
 
 export async function sendMessage(message: string, onChunk: (chunk: string) => void): Promise<void> {
