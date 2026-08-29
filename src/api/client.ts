@@ -2,6 +2,11 @@ import { getToken, clearToken } from '../auth';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
+export interface AuthUser {
+  id: number;
+  email: string;
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -41,7 +46,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json();
 }
 
-export async function register(email: string, password: string): Promise<{ token: string }> {
+export async function register(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -50,7 +55,7 @@ export async function register(email: string, password: string): Promise<{ token
   return handleResponse(res);
 }
 
-export async function login(email: string, password: string): Promise<{ token: string }> {
+export async function login(email: string, password: string): Promise<{ token: string; user: AuthUser }> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -92,6 +97,14 @@ export async function getMessages(): Promise<ChatMessage[]> {
   return data.messages;
 }
 
+export async function clearMessages(): Promise<void> {
+  const res = await fetch(`${API_URL}/messages`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+  await handleResponse<{ cleared: boolean }>(res);
+}
+
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${API_URL}/tasks`, { headers: authHeaders() });
   const data = await handleResponse<{ tasks: Task[] }>(res);
@@ -108,6 +121,8 @@ function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
+      // reader.result es un data URL "data:<mime>;base64,<contenido>"; solo
+      // queremos la parte de despues de la coma.
       const result = reader.result as string;
       resolve(result.split(',')[1] ?? '');
     };

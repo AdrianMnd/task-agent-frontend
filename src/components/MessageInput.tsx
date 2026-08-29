@@ -8,9 +8,13 @@ interface Props {
 
 const canRecordAudio = typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia;
 
+// Umbral de volumen (0-128 aprox) por debajo del cual se considera silencio.
+// Puede necesitar ajuste segun la sensibilidad del microfono: si corta la grabacion
+// demasiado pronto mientras hablas, sube este valor; si tarda en detectar el silencio,
+// bajalo.
 const SILENCE_THRESHOLD = 8;
 const SILENCE_DURATION_MS = 1500;
-const MAX_RECORDING_MS = 30000;
+const MAX_RECORDING_MS = 30000; // limite de seguridad por si el silencio nunca se detecta
 
 export function MessageInput({ onSend, disabled }: Props) {
   const [value, setValue] = useState('');
@@ -70,6 +74,7 @@ export function MessageInput({ onSend, disabled }: Props) {
       mediaRecorder.start();
       setRecording(true);
 
+      // Analisis de volumen en tiempo real para detectar cuando el usuario deja de hablar.
       const audioContext = new AudioContext();
       audioContextRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);

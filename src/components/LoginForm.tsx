@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { login, register } from '../api/client';
-import { setToken } from '../auth';
+import { setToken, setUser } from '../auth';
 
 interface Props {
   onAuthenticated: () => void;
@@ -18,8 +18,9 @@ export function LoginForm({ onAuthenticated }: Props) {
     setError(null);
     setLoading(true);
     try {
-      const { token } = mode === 'login' ? await login(email, password) : await register(email, password);
+      const { token, user } = mode === 'login' ? await login(email, password) : await register(email, password);
       setToken(token);
+      setUser(user);
       onAuthenticated();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Algo ha ido mal');
@@ -31,7 +32,7 @@ export function LoginForm({ onAuthenticated }: Props) {
   return (
     <div className="auth-screen">
       <form className="auth-form" onSubmit={handleSubmit}>
-        <h1>Agente de Tareas</h1>
+        <h1>Task Agent</h1>
         <p className="auth-subtitle">{mode === 'login' ? 'Inicia sesión' : 'Crea una cuenta'}</p>
 
         <input
