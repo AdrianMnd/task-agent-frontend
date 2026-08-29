@@ -20,15 +20,25 @@ export function ChatWindow({ onTasksChanged }: Props) {
   }, []);
 
   async function handleSend(text: string) {
-    const nextHistory: ChatMessage[] = [...messages, { role: 'user', content: text }];
-    setMessages(nextHistory);
+    setMessages((prev) => [...prev, { role: 'user', content: text }, { role: 'assistant', content: '' }]);
     setLoading(true);
+
     try {
-      const reply = await sendMessage(text);
-      setMessages([...nextHistory, { role: 'assistant', content: reply }]);
+      await sendMessage(text, (chunk) => {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          updated[updated.length - 1] = { ...last, content: last.content + chunk };
+          return updated;
+        });
+      });
       onTasksChanged?.();
     } catch {
-      setMessages([...nextHistory, { role: 'assistant', content: 'Error al contactar con el agente.' }]);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: 'assistant', content: 'Error al contactar con el agente.' };
+        return updated;
+      });
     } finally {
       setLoading(false);
     }
@@ -39,9 +49,8 @@ export function ChatWindow({ onTasksChanged }: Props) {
       <div className="messages">
         {loadingHistory && <p className="task-panel-hint">Cargando conversación...</p>}
         {messages.map((m, i) => (
-          <MessageBubble key={i} message={m} />
+          <MessageBubble key={i} message={m.content === '' ? { ...m, content: 'Pensando...' } : m} />
         ))}
-        {loading && <div className="message-bubble assistant">Pensando...</div>}
       </div>
       <MessageInput onSend={handleSend} disabled={loading} />
     </div>

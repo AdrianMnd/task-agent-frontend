@@ -59,14 +59,31 @@ export async function login(email: string, password: string): Promise<{ token: s
   return handleResponse(res);
 }
 
-export async function sendMessage(message: string): Promise<string> {
+export async function sendMessage(message: string, onChunk: (chunk: string) => void): Promise<void> {
   const res = await fetch(`${API_URL}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ message })
   });
-  const data = await handleResponse<{ reply: string }>(res);
-  return data.reply;
+
+  if (res.status === 401) {
+    clearToken();
+    window.location.reload();
+    throw new Error('Sesion caducada');
+  }
+  if (!res.ok || !res.body) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || 'Error de red');
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    onChunk(decoder.decode(value, { stream: true }));
+  }
 }
 
 export async function getMessages(): Promise<ChatMessage[]> {
