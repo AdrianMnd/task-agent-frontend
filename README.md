@@ -103,6 +103,37 @@ npm run dev
 
 Necesita el backend corriendo en paralelo.
 
+## Testing
+
+**Unitarios (Vitest + Testing Library):**
+
+```bash
+npm test
+```
+
+65 tests: `auth.ts`, `api/client.ts` completo (incluyendo el streaming, mockeando
+`fetch` y el `ReadableStream`), y los 8 componentes. Entorno `jsdom` — nota honesta: como
+`jsdom` no implementa `navigator.mediaDevices`, el test de `MessageInput` verifica el
+comportamiento real de un navegador sin soporte (el botón de micro no aparece), pero no
+puede ejercitar la rama en la que sí existe soporte de grabación.
+
+**End-to-end (Playwright):**
+
+```bash
+npx playwright install chromium   # una vez, la primera vez
+npm run test:e2e
+```
+
+10 tests en 4 archivos (`auth`, `chat`, `tasks`, `responsive`) que arrancan la app de
+verdad en un navegador, pero interceptan todas las llamadas de red con `page.route()` —
+no necesitan el backend real ni una base de datos. Cubren login/registro/reset de
+contraseña, envío de mensajes, visualización de tareas, y el cambio a pestañas en móvil.
+
+⚠️ Estos e2e se escribieron y se verificó que Playwright los reconoce sin errores
+(`npx playwright test --list`), pero no se ejecutaron contra un navegador real durante el
+desarrollo — el entorno donde se generaron no tenía acceso al CDN de descarga de
+Chromium. Ejecuta `npm run test:e2e` tú la primera vez para confirmar que pasan.
+
 ## Despliegue
 
 Vercel, auto-deploy en `master`. Vite detecta el framework automáticamente.

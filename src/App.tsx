@@ -45,6 +45,7 @@ function App() {
         </div>
       </div>
 
+      {/* Piloto de actividad: se enciende mientras el agente piensa o ejecuta una herramienta. */}
       <div className={`status-strip ${agentActive ? 'active' : ''}`}>
         <div className="status-strip-fill" />
       </div>

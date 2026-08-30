@@ -1,3 +1,6 @@
+// Almacenamiento del token de sesion. localStorage es apropiado aqui porque esta
+// es una app real desplegada (no un artifact de Claude), donde localStorage
+// funciona con normalidad.
 const TOKEN_KEY = 'task_agent_token';
 const USER_KEY = 'task_agent_user';
 
