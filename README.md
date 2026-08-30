@@ -6,6 +6,10 @@ con vista de pestañas en móvil.
 
 Repo hermano: [task-agent-backend](https://github.com/AdrianMnd/task-agent-backend)
 
+**Demo en vivo**: https://taskagent-adrianmnd.vercel.app
+
+![Task Agent — vista de escritorio](docs/screenshot-desktop.png)
+
 ## Stack
 
 - **React 18 + TypeScript + Vite**
