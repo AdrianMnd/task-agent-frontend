@@ -6,9 +6,10 @@ import { MessageInput } from './MessageInput';
 interface Props {
   onTasksChanged?: () => void;
   onActiveChange?: (active: boolean) => void;
+  onReady?: () => void;
 }
 
-export function ChatWindow({ onTasksChanged, onActiveChange }: Props) {
+export function ChatWindow({ onTasksChanged, onActiveChange, onReady }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -18,7 +19,10 @@ export function ChatWindow({ onTasksChanged, onActiveChange }: Props) {
     getMessages()
       .then(setMessages)
       .catch(() => {})
-      .finally(() => setLoadingHistory(false));
+      .finally(() => {
+        setLoadingHistory(false);
+        onReady?.();
+      });
   }, []);
 
   // Scroll automatico: cada vez que cambia la conversacion (mensaje nuevo,

@@ -3,6 +3,7 @@ import { getTasks, type Task } from '../api/client';
 
 interface Props {
   refreshTrigger: number;
+  onReady?: () => void;
 }
 
 function isOverdue(task: Task): boolean {
@@ -10,7 +11,7 @@ function isOverdue(task: Task): boolean {
   return new Date(task.due_date) < new Date(new Date().toDateString());
 }
 
-export function TaskPanel({ refreshTrigger }: Props) {
+export function TaskPanel({ refreshTrigger, onReady }: Props) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -29,7 +30,10 @@ export function TaskPanel({ refreshTrigger }: Props) {
         if (!cancelled) setError(true);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          onReady?.();
+        }
       });
     return () => {
       cancelled = true;

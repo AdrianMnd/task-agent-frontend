@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { useEffect } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -22,23 +23,34 @@ vi.mock('../components/LoginForm', () => ({
 vi.mock('../components/ChatWindow', () => ({
   ChatWindow: ({
     onTasksChanged,
-    onActiveChange
+    onActiveChange,
+    onReady
   }: {
     onTasksChanged?: () => void;
     onActiveChange?: (active: boolean) => void;
-  }) => (
-    <div>
-      <span>chat-window-stub</span>
-      <button onClick={onTasksChanged}>Simular tarea creada</button>
-      <button onClick={() => onActiveChange?.(true)}>Simular agente activo</button>
-    </div>
-  )
+    onReady?: () => void;
+  }) => {
+    // Igual que el componente real: avisa de que esta listo tras su "carga" (aqui inmediata).
+    useEffect(() => {
+      onReady?.();
+    }, []);
+    return (
+      <div>
+        <span>chat-window-stub</span>
+        <button onClick={onTasksChanged}>Simular tarea creada</button>
+        <button onClick={() => onActiveChange?.(true)}>Simular agente activo</button>
+      </div>
+    );
+  }
 }));
 
 vi.mock('../components/TaskPanel', () => ({
-  TaskPanel: ({ refreshTrigger }: { refreshTrigger: number }) => (
-    <div>task-panel-stub refresh={refreshTrigger}</div>
-  )
+  TaskPanel: ({ refreshTrigger, onReady }: { refreshTrigger: number; onReady?: () => void }) => {
+    useEffect(() => {
+      onReady?.();
+    }, []);
+    return <div>task-panel-stub refresh={refreshTrigger}</div>;
+  }
 }));
 
 vi.mock('../components/ReminderStatus', () => ({
