@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.taskagent_adrianmnd.twa",
+    "sha256_cert_fingerprints": "D7:F0:C6:86:FA:80:5D:2A:1B:67:58:50:8D:3A:73:BB:C2:8E:42:4F:DB:95:EC:44:3F:B4:01:8A:59:0C:9E:F5"
+  }
+}]
