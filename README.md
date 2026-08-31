@@ -131,6 +131,29 @@ contraseña, envío de mensajes, visualización de tareas, y el cambio a pestañ
 
 10/10 verificados en verde (30/08).
 
+## PWA y versión Android
+
+Desde agosto de 2026, la app es una PWA instalable de verdad: `manifest.json`, iconos en
+`public/` (192, 512 y una variante "maskable" para el recorte de formas de Android), y
+un service worker mínimo (`public/sw.js`) que solo existe para cumplir el criterio de
+instalabilidad de Chrome — no cachea nada de forma agresiva a propósito, porque servir
+una versión vieja por error sería peor que no cachear.
+
+La versión Android es un **TWA** (Trusted Web Activity) generado con
+[Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap), no una app nativa ni
+React Native: es esta misma PWA envuelta en un shell Android mínimo que la abre a
+pantalla completa. El proyecto Android vive en un repo separado,
+[task-agent-android](https://github.com/AdrianMnd/task-agent-android), generado a
+partir de este `manifest.json`.
+
+Requisito para que se abra sin barra de navegador: `public/.well-known/assetlinks.json`
+debe contener la huella SHA256 real del certificado de firma generado por Bubblewrap
+(ver el README de `task-agent-android` para el proceso completo).
+
+⚠️ El keystore de firma (`*.keystore`, `*.jks`) **nunca** debe subirse al repo — solo
+existe en la máquina donde se compila el AAB/APK. Confírmalo en `.gitignore` antes del
+primer commit del repo Android.
+
 ## Despliegue
 
 Vercel, auto-deploy en `master`. Vite detecta el framework automáticamente.
