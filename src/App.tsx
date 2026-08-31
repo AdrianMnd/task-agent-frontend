@@ -4,6 +4,7 @@ import { TaskPanel } from './components/TaskPanel';
 import { ReminderStatus } from './components/ReminderStatus';
 import { LoginForm } from './components/LoginForm';
 import { getToken, clearToken, getUser, clearUser } from './auth';
+import { useExitOnDoubleBack } from './useExitOnDoubleBack';
 import './styles.css';
 
 function App() {
@@ -14,15 +15,19 @@ function App() {
   const [mobileTab, setMobileTab] = useState<'chat' | 'tasks'>('chat');
   const [chatReady, setChatReady] = useState(false);
   const [tasksReady, setTasksReady] = useState(false);
+  const showExitHint = useExitOnDoubleBack();
 
   if (!authed) {
     return (
-      <LoginForm
-        onAuthenticated={() => {
-          setUserState(getUser());
-          setAuthed(true);
-        }}
-      />
+      <>
+        <LoginForm
+          onAuthenticated={() => {
+            setUserState(getUser());
+            setAuthed(true);
+          }}
+        />
+        {showExitHint && <div className="exit-toast">Pulsa atrás otra vez para salir</div>}
+      </>
     );
   }
 
@@ -32,10 +37,6 @@ function App() {
     setAuthed(false);
   }
 
-  // Mientras el chat y las tareas no han terminado su primera carga, se muestra
-  // una pantalla de bienvenida en vez del layout vacio. ChatWindow y TaskPanel
-  // siguen montados (con visibility:hidden) para que su fetch inicial arranque
-  // en paralelo desde el primer render, no despues de ocultar esta pantalla.
   const appReady = chatReady && tasksReady;
 
   return (
@@ -95,6 +96,8 @@ function App() {
           </div>
         </div>
       </div>
+
+      {showExitHint && <div className="exit-toast">Pulsa atrás otra vez para salir</div>}
     </div>
   );
 }
