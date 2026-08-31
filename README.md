@@ -154,12 +154,19 @@ debe contener la huella SHA256 real del certificado de firma generado por Bubble
 existe en la máquina donde se compila el AAB/APK. Confírmalo en `.gitignore` antes del
 primer commit del repo Android.
 
+**"Pulsa atrás otra vez para salir"**: implementado en `useExitOnDoubleBack.ts`, a nivel
+de React, no en el proyecto Android nativo — en una TWA, el botón atrás lo gestiona el
+historial de la propia página web, así que la lógica vive aquí y no en Bubblewrap.
+
 ## Despliegue
 
 Vercel, auto-deploy en `master`. Vite detecta el framework automáticamente.
 
 ## Limitaciones conocidas
 
-- Sin tests automatizados todavía (pendiente, próxima iteración del proyecto).
 - El límite de Resend (ver README del backend) afecta a los recordatorios y al reset de
   contraseña, no al resto de la funcionalidad del frontend.
+
+## Licencia
+
+ISC — ver [LICENSE](./LICENSE).
