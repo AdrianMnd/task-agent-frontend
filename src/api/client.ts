@@ -2,11 +2,6 @@ import { getToken, clearToken } from '../auth';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
-export interface AuthUser {
-  id: number;
-  email: string;
-}
-
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -46,6 +41,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json();
 }
 
+export interface AuthUser {
+  id: number;
+  email: string;
+}
+
+// A diferencia de handleResponse, esta funcion NO trata el 401 como "sesion caducada":
+// en login/registro un 401 significa "credenciales incorrectas", un caso completamente
+// distinto que sí debe mostrarse al usuario en vez de recargar la pagina en silencio.
 async function parseAuthResponse<T>(res: Response): Promise<T> {
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {

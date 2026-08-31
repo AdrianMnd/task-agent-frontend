@@ -14,6 +14,9 @@
   --red: #f0604a;
   --red-text: #4a140a;
 
+  /* Inter en toda la app: los elementos que antes usaban var(--font-mono)
+     (cabecera, fechas, etiquetas) mantienen su tratamiento visual (mayusculas,
+     letter-spacing) pero ahora tambien en Inter, no en una fuente monospace. */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -41,6 +44,42 @@ button {
   height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  z-index: 50;
+}
+
+.loading-logo {
+  width: 40px;
+  height: 40px;
+  animation: loading-pulse 1.4s ease-in-out infinite;
+}
+
+.loading-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+@keyframes loading-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-logo { animation: none; }
 }
 
 .app-header {
@@ -98,6 +137,9 @@ button {
   color: var(--text);
 }
 
+/* Barra de estado: el "piloto" de actividad del agente. En reposo apenas se
+   ve; cuando el agente esta pensando o ejecutando una herramienta, se llena
+   de ambar y pulsa. Es el elemento "firma" del rediseño. */
 .status-strip {
   height: 2px;
   background: var(--border);
@@ -155,6 +197,7 @@ button {
   background: var(--text-muted);
 }
 
+/* Layout principal: chat + panel de tareas lado a lado en escritorio */
 .layout {
   display: flex;
   gap: 16px;
@@ -287,6 +330,7 @@ button {
   font-size: 14px;
 }
 
+/* Input de mensaje */
 .message-input {
   display: flex;
   gap: 8px;
@@ -349,6 +393,7 @@ button {
   padding: 0 12px;
 }
 
+/* Panel de tareas */
 .task-panel {
   height: 100%;
   border: 0.5px solid var(--border);
@@ -447,6 +492,7 @@ button {
   color: var(--text-muted);
 }
 
+/* Login / registro */
 .auth-screen {
   min-height: 100vh;
   display: flex;
@@ -527,6 +573,7 @@ button {
   margin: 0;
 }
 
+/* Responsive: por debajo de 720px, el chat y las tareas pasan a pestañas */
 @media (max-width: 860px) {
   .layout {
     flex-direction: column;
