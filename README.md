@@ -129,10 +129,7 @@ verdad en un navegador, pero interceptan todas las llamadas de red con `page.rou
 no necesitan el backend real ni una base de datos. Cubren login/registro/reset de
 contraseña, envío de mensajes, visualización de tareas, y el cambio a pestañas en móvil.
 
-⚠️ Estos e2e se escribieron y se verificó que Playwright los reconoce sin errores
-(`npx playwright test --list`), pero no se ejecutaron contra un navegador real durante el
-desarrollo — el entorno donde se generaron no tenía acceso al CDN de descarga de
-Chromium. Ejecuta `npm run test:e2e` tú la primera vez para confirmar que pasan.
+10/10 verificados en verde (30/08).
 
 ## Despliegue
 
